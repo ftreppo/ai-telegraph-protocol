@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ftreppo/ai-telegraph-protocol/schema/atp-message.schema.json",
+  "title": "AI Telegraph Protocol v0.1 record",
+  "type": "object",
+  "required": [
+    "protocol",
+    "version",
+    "type",
+    "session_id",
+    "created_at"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "ATP"
+    },
+    "version": {
+      "const": "0.1"
+    },
+    "type": {
+      "enum": [
+        "meta",
+        "request",
+        "ack",
+        "message",
+        "data",
+        "question",
+        "progress",
+        "rendezvous",
+        "result",
+        "error",
+        "cancel"
+      ]
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "message_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trace_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "from": {
+      "type": "string",
+      "minLength": 1
+    },
+    "to": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reply_to_seq": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "next_actor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string"
+    },
+    "retry_after_s": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "next_check_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "body": {
+      "type": "object"
+    },
+    "data_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "ref"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mime_type": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "intent": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "meta"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "required": [
+          "participants"
+        ]
+      },
+      "else": {
+        "required": [
+          "seq",
+          "message_id",
+          "from",
+          "to",
+          "next_actor"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "rendezvous"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "anyOf": [
+          {
+            "required": [
+              "retry_after_s"
+            ]
+          },
+          {
+            "required": [
+              "next_check_at"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "additionalProperties": true
+}
